@@ -26,3 +26,6 @@
 *.exe
 *.out
 *.app
+
+# specifics
+/test1.pgm
