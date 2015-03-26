@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <errno.h>
 #include <string.h>
-
+#include <errno.h>
 #include "pnmio.h"
 
 
@@ -22,19 +21,14 @@ int main(int argc, char** argv)
 	}
 
 	// Good! We've got the file. We could check if it's the right length,
-	// but that's unnecessary atm.
-
-	// Black to white for highest bit? 10m high is the max.
+	// but that's unnecessary at the moment.
 
 	// WARNING: MAGIC NUMBERS AHEAD
-	float max = -1.;
-	float min = 100.;
-	float florida[250000];
-	unsigned char temp[4];
+	float elevation[250000];
 	for (int row = 0; row < 500; row++) // there should be 500x500 points of data
 	{
-		fread(&florida[row*500], 4, 500, rawfile);
+		fread(&elevation[row*500], 4, 500, rawfile);
 	}
 
-	write_float_img_pgm("dem_out.pgm", florida, 500, 500);
+	write_float_img_pgm("dem_out.pgm", elevation, 500, 500);
 }

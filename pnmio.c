@@ -14,30 +14,6 @@
 #include "pnmio.h"
 #define LENGTH 80
 
-/*** ADDED BY MARK ****/
- void KLTError(char *fmt, ...)
-{
-  va_list args;
- 
-  va_start(args, fmt);
-  fprintf(stderr, "KLT Error: ");
-  vfprintf(stderr, fmt, args);
-  fprintf(stderr, "\n");
-  va_end(args);
-  exit(1);
-}
-void KLTWarning(char *fmt, ...)
-{
-  va_list args;
- 
-  va_start(args, fmt);
-  fprintf(stderr, "KLT Warning: ");
-  vfprintf(stderr, fmt, args);
-  fprintf(stderr, "\n");
-  fflush(stderr);
-  va_end(args);
-}
-
 
 /*********************************************************************/
 
@@ -518,4 +494,31 @@ int write_int_img_pgm(char *filename,  int *gx2, int cols, int rows)
 	pgmWriteFile(filename, img, cols, rows);
 	free(img);
 	return 1;
+}
+
+int write_int_img_pgm_bw(char *filename,  int *gx2, int cols, int rows)
+{
+  unsigned char *img;
+  int i, j;
+  int imax, imin;
+  imax =0;
+  imin =100000000;
+  img = (unsigned char *)malloc(sizeof(char)*cols*rows);
+  for(i = 0; i < cols*rows; ++i)
+  {
+    if(gx2[i] > imax) imax = gx2[i];
+    
+    if(gx2[i] < imin && gx2[i] != 0) imin = gx2[i];
+  }
+  for(i = 0; i < cols*rows; ++i)
+  {
+    img[i] = (gx2[i])*255;
+    //if(abs(gx2[i]) < 1000)
+    //{
+      //img[i] = 0;
+    //}
+  }
+  pgmWriteFile(filename, img, cols, rows);
+  free(img);
+  return 1;
 }

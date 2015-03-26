@@ -32,3 +32,6 @@
 /dem_out.pgm
 /dem_reader
 /test_pgm
+/diff_out.png
+/lander
+/lander_out

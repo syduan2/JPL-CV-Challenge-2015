@@ -71,6 +71,7 @@ int getsubsetPGM(FILE *fp, int fcols, int frows, long head_length, unsigned char
 int write_short_img_pgm(char *filename,  unsigned short *simg, int cols, int rows);
 int write_int_img_pgm(char *filename,  int *gx2, int cols, int rows);
 int write_float_img_pgm(char *filename, float *gx2, int cols, int rows);
+int write_int_img_pgm_bw(char *filename,  int *gx2, int cols, int rows);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
