@@ -29,3 +29,6 @@
 
 # specifics
 /test1.pgm
+/dem_out.pgm
+/dem_reader
+/test_pgm

@@ -37,7 +37,7 @@ void ppmWriteFileRGB(
 
 int  ppmReadFile(
   char *fname,
-  unsigned char **r, 
+  unsigned char **r, // set to null to have the program allocate memory
   unsigned char **g, 
   unsigned char **b,
   int *ncols, 

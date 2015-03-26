@@ -14,13 +14,37 @@
 #include "pnmio.h"
 #define LENGTH 80
 
+/*** ADDED BY MARK ****/
+ void KLTError(char *fmt, ...)
+{
+  va_list args;
+ 
+  va_start(args, fmt);
+  fprintf(stderr, "KLT Error: ");
+  vfprintf(stderr, fmt, args);
+  fprintf(stderr, "\n");
+  va_end(args);
+  exit(1);
+}
+void KLTWarning(char *fmt, ...)
+{
+  va_list args;
+ 
+  va_start(args, fmt);
+  fprintf(stderr, "KLT Warning: ");
+  vfprintf(stderr, fmt, args);
+  fprintf(stderr, "\n");
+  fflush(stderr);
+  va_end(args);
+}
+
 
 /*********************************************************************/
 
-static void _getNextString(
+ static void _getNextString(
   FILE *fp,
   char *line)
-{
+ {
   int i;
 
   line[0] = '\0';
@@ -43,21 +67,21 @@ static void _getNextString(
  * pnmReadHeader
  */
 
-void pnmReadHeader(
+ void pnmReadHeader(
   FILE *fp, 
   int *magic, 
   int *ncols, int *nrows, 
   int *maxval)
-{
+ {
   char line[LENGTH];
-	
+
   /* Read magic number */
   _getNextString(fp, line);
   if (line[0] != 'P')
     KLTError("(pnmReadHeader) Magic number does not begin with 'P', "
-             "but with a '%c'", line[0]);
+     "but with a '%c'", line[0]);
   sscanf(line, "P%d", magic);
-	
+
   /* Read size, skipping comments */
   _getNextString(fp, line);
   *ncols = atoi(line);
@@ -65,13 +89,13 @@ void pnmReadHeader(
   *nrows = atoi(line);
   if (*ncols < 0 || *nrows < 0 || *ncols > 900000 || *nrows >900000)
     KLTError("(pnmReadHeader) The dimensions %d x %d are unacceptable",
-             *ncols, *nrows);
-	
+     *ncols, *nrows);
+
   /* Read maxval, skipping comments */
   _getNextString(fp, line);
   *maxval = atoi(line);
   fread(line, 1, 1, fp); /* Read newline which follows maxval */
-	
+
   if (*maxval != 255)
     KLTWarning("(pnmReadHeader) Maxval is not 255, but %d", *maxval);
 }
@@ -81,12 +105,12 @@ void pnmReadHeader(
  * pgmReadHeader
  */
 
-void pgmReadHeader(
+ void pgmReadHeader(
   FILE *fp, 
   int *magic, 
   int *ncols, int *nrows, 
   int *maxval)
-{
+ {
   pnmReadHeader(fp, magic, ncols, nrows, maxval);
   if (*magic != 5)
     KLTError("(pgmReadHeader) Magic number is not 'P5', but 'P%d'", *magic);
@@ -97,12 +121,12 @@ void pgmReadHeader(
  * ppmReadHeader
  */
 
-void ppmReadHeader(
+ void ppmReadHeader(
   FILE *fp, 
   int *magic, 
   int *ncols, int *nrows, 
   int *maxval)
-{
+ {
   pnmReadHeader(fp, magic, ncols, nrows, maxval);
   if (*magic != 6)
     KLTError("(ppmReadHeader) Magic number is not 'P6', but 'P%d'", *magic);
@@ -113,12 +137,12 @@ void ppmReadHeader(
  * pgmReadHeaderFile
  */
 
-void pgmReadHeaderFile(
+ void pgmReadHeaderFile(
   char *fname, 
   int *magic, 
   int *ncols, int *nrows, 
   int *maxval)
-{
+ {
   FILE *fp;
 
   /* Open file */
@@ -137,12 +161,12 @@ void pgmReadHeaderFile(
  * ppmReadHeaderFile
  */
 
-void ppmReadHeaderFile(
+ void ppmReadHeaderFile(
   char *fname, 
   int *magic, 
   int *ncols, int *nrows, 
   int *maxval)
-{
+ {
   FILE *fp;
 
   /* Open file */
@@ -163,11 +187,11 @@ void ppmReadHeaderFile(
  * NOTE:  If img is NULL, memory is allocated.
  */
 
-unsigned char* pgmRead(
+ unsigned char* pgmRead(
   FILE *fp,
   unsigned char *img,
   int *ncols, int *nrows)
-{
+ {
   unsigned char *ptr;
   int magic, maxval;
   int i;
@@ -203,11 +227,11 @@ unsigned char* pgmRead(
  * NOTE:  If img is NULL, memory is allocated.
  */
 
-unsigned char* pgmReadFile(
+ unsigned char* pgmReadFile(
   char *fname,
   unsigned char *img,
   int *ncols, int *nrows)
-{
+ {
   unsigned char *ptr;
   FILE *fp;
 
@@ -229,12 +253,12 @@ unsigned char* pgmReadFile(
  * pgmWrite
  */
 
-void pgmWrite(
+ void pgmWrite(
   FILE *fp,
   unsigned char *img, 
   int ncols, 
   int nrows)
-{
+ {
   int i;
 
   /* Write header */
@@ -254,12 +278,12 @@ void pgmWrite(
  * pgmWriteFile
  */
 
-void pgmWriteFile(
+ void pgmWriteFile(
   char *fname, 
   unsigned char *img, 
   int ncols, 
   int nrows)
-{
+ {
   FILE *fp;
 
   /* Open file */
@@ -278,14 +302,14 @@ void pgmWriteFile(
  * ppmWrite
  */
 
-void ppmWrite(
+ void ppmWrite(
   FILE *fp,
   unsigned char *redimg,
   unsigned char *greenimg,
   unsigned char *blueimg,
   int ncols, 
   int nrows)
-{
+ {
   int i, j;
 
   /* Write header */
@@ -309,14 +333,14 @@ void ppmWrite(
  * ppmWriteFileRGB
  */
 
-void ppmWriteFileRGB(
+ void ppmWriteFileRGB(
   char *fname, 
   unsigned char *redimg,
   unsigned char *greenimg,
   unsigned char *blueimg,
   int ncols, 
   int nrows)
-{
+ {
   FILE *fp;
 
   /* Open file */
@@ -344,71 +368,71 @@ void ppmWriteFileRGB(
     success and -1 for failure. */
 
 int  ppmReadFile(
-  char *fname,
-  unsigned char **r, 
-  unsigned char **g, 
-  unsigned char **b,
-  int *ncols, 
-  int *nrows)
-{
-    FILE *fp;
-	unsigned char *rpt, *gpt, *bpt;
-    int magic, npixels, maxval, i;
-	unsigned char *rgb, *rgbpt;
-  /* Open file */
-  if ( (fp = fopen(fname, "rb")) == NULL)
-    KLTError("(ppmWriteFileRGB) Can't open file named '%s' for readingng\n", fname);
+      char *fname,
+      unsigned char **r,
+      unsigned char **g,
+      unsigned char **b,
+      int *ncols,
+      int *nrows)
+    {
+      FILE *fp;
+      unsigned char *rpt, *gpt, *bpt;
+      int magic, npixels, maxval, i;
+      unsigned char *rgb, *rgbpt;
+      /* Open file */
+      if ( (fp = fopen(fname, "rb")) == NULL)
+        KLTError("(ppmReadFile) Can't open file named '%s' for readingng\n", fname);
 
-  ppmReadHeader(fp, &magic, ncols, nrows, &maxval);
-  
-  npixels = *nrows * *ncols;
+      ppmReadHeader(fp, &magic, ncols, nrows, &maxval);
+
+      npixels = *nrows * *ncols;
+
+      if(*r == NULL)
+      {
+        if ((*r = (unsigned char *)malloc(npixels*3)) == NULL) {
+          KLTError("Error allocating %d bytes for PGM file: %s\n", npixels, fname);
+        }
+        *g = *r + npixels;
+        *b = *g + npixels;
+      }
     
-  if(*r == NULL)
-  {
-     if ((*r = (unsigned char *)malloc(npixels*3)) == NULL) {
-	 KLTError("Error allocating %d bytes for PGM file: %s\n", npixels, fname);
-	 }
-	 *g = *r + npixels;
-	 *b = *g + npixels;
-  }
-  
-  rgb = (unsigned char *)malloc(npixels*3);
-  fread(rgb, npixels*3, 1, fp);
-  	rpt = *r;
-	gpt = *g;
-	bpt = *b;
-    rgbpt = rgb;
-  for(i = 0; i < npixels; ++i)
-  {
-     *(rpt++)=*(rgbpt++);
-	 *(gpt++)=*(rgbpt++);
-	 *(bpt++)=*(rgbpt++);
-  }
-  free(rgb);
-  fclose(fp);
-  return 1;
-}
+      rgb = (unsigned char *)malloc(npixels*3);
+      fread(rgb, npixels*3, 1, fp);
+      rpt = *r;
+      gpt = *g;
+      bpt = *b;
+      rgbpt = rgb;
+      for(i = 0; i < npixels; ++i)
+      {
+        *(rpt++)=*(rgbpt++);
+        *(gpt++)=*(rgbpt++);
+        *(bpt++)=*(rgbpt++);
+      }
+      free(rgb);
+      fclose(fp);
+      return 1;
+    }  
 
 
-int getsubsetPGM(FILE *fp, int fcols, int frows, long head_length, unsigned char *subimg, 
-			  int cols, int rows, int start_col, int end_col, int start_row, int end_row)
-{	
-	int i , j;
-	long offset;
-	char *onerow;
-	onerow = (  char *)malloc(sizeof(char)*fcols);
-	offset = head_length + fcols*start_row;
-	fseek(fp, offset, SEEK_SET);
-	for(i = 0; i < rows; ++i)
-	{
-		fread(onerow, sizeof(char), fcols, fp);
-		for(j = 0; j < cols; ++j)
-		{
-			subimg[i*cols +j] = onerow[start_col +j];
-		}
-	}
-	free(onerow);
-	return 1;
+ int getsubsetPGM(FILE *fp, int fcols, int frows, long head_length, unsigned char *subimg, 
+   int cols, int rows, int start_col, int end_col, int start_row, int end_row)
+ {	
+   int i , j;
+   long offset;
+   char *onerow;
+   onerow = (  char *)malloc(sizeof(char)*fcols);
+   offset = head_length + fcols*start_row;
+   fseek(fp, offset, SEEK_SET);
+   for(i = 0; i < rows; ++i)
+   {
+    fread(onerow, sizeof(char), fcols, fp);
+    for(j = 0; j < cols; ++j)
+    {
+     subimg[i*cols +j] = onerow[start_col +j];
+   }
+ }
+ free(onerow);
+ return 1;
 }
 
 int write_short_img_pgm(char *filename,  unsigned short *simg, int cols, int rows)
@@ -439,7 +463,7 @@ int write_short_img_pgm(char *filename,  unsigned short *simg, int cols, int row
 }
 
 
-int write_int_float_pgm(char *filename,  float *gx2, int cols, int rows)
+int write_float_img_pgm(char *filename,  float *gx2, int cols, int rows)
 {
 	unsigned char *img;
 	int i, j;

@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -O3 -funroll-loops -pedantic
+CFLAGS = -O3 -funroll-loops -pedantic
 CLIBS= -L.  -lm
 
-build: test_pgm
+build: test_pgm dem_reader
 	:
 
 run:
@@ -11,6 +11,9 @@ run:
 	:
 
 all: build run
+
+dem_reader: dem_reader.cpp pnmio.h
+	g++ -o dem_reader $(CFLAGS) dem_reader.cpp pnmio.c pnmio.h
 
 test_pgm: test_main.c pnmio.c error.c
 	$(CC) -o test_pgm $(CFLAGS) test_main.c pnmio.c error.c $(CLIBS)
