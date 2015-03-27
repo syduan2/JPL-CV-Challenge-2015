@@ -5,12 +5,12 @@
 #include "pnmio.h"
 
 #define ELEV_LEN 500
-#define VIS_LEN 1000
+#define IMG_LEN 1000
 #define BORDER 21
 
 void print_usage(char** argv)
 {
-	printf("Incorrect usage. %s VISUAL ELEVATION OUTPUT\n", argv[0]);
+	printf("Incorrect usage. %s IMAGE ELEVATION OUTPUT\n", argv[0]);
 }
 
 int main(int argc, char** argv)
@@ -50,44 +50,54 @@ int main(int argc, char** argv)
 	}
 
 	// set the results array to zero
-	int results[VIS_LEN*VIS_LEN]; 
-	for (int i = 0; i < VIS_LEN*VIS_LEN; i++) {results[i] = 1;}
+	int results[IMG_LEN*IMG_LEN]; 
+	for (int i = 0; i < IMG_LEN*IMG_LEN; i++) {results[i] = 1;}
 
 	// a really simple catch for the first challenge
-	// OH GOD SO MANY FOR-LOOPS.
+	/**
+	 * So the program iterates over all the elevation bits, then if it's 
+	 * greater than some threshold, it and all of its nearby pixels are marked
+	 * black.
+	 *
+	 * The factors of two are because there are 500px along the elevation map,
+	 * but 1000px along the output images
+	 */
 	for (int row = 0; row < ELEV_LEN; row++)
 	{
 		for (int column = 0; column < ELEV_LEN; column++)
 		{
-			// TODO: fix the ordering, I think.
-			if (column*2 < BORDER || column*2 > VIS_LEN - BORDER
-				|| row*2 < BORDER || row*2 > VIS_LEN - BORDER)
+			// all of these are pretty much magic numbers we have to tune
+			float radius = 0;
+			if(elevation[row*ELEV_LEN+column] >= 18.78) 
+				radius = 18.5;
+
+			// color all pixels within radius of (column, row) black
+			if (radius != 0)
 			{
-				results[row*2*VIS_LEN + column*2] = 0;
-				results[(row*2+1)*VIS_LEN + column*2] = 0;
-				results[row*2*VIS_LEN + column*2 + 1] = 0;
-				results[(row*2+1)*VIS_LEN + column*2 + 1] = 0;
-				continue;
-			}
-			// the radius of the lander is about 1.7m 
-			// (17 pix in the regular map)
-			if(elevation[row*ELEV_LEN+column] >= 19.1) // tune this
-			{
-				for (int x_offset = -17; x_offset <= 17; x_offset++)
+				for (int x_offset = -radius; x_offset <= radius; x_offset++)
 				{
-					for (int y_offset = -17; y_offset <= 17; y_offset++)
+					for (int y_offset = -radius; y_offset <= radius; y_offset++)
 					{
 						int x = column*2 + x_offset; // yes, that's column.
 						int y = row*2 + y_offset;
-						if (x_offset*x_offset + y_offset*y_offset < 17*17
-							&& x >= 0 && x < VIS_LEN
-							&& y >= 0 && y < VIS_LEN) 
+						if (x_offset*x_offset + y_offset*y_offset < radius*radius
+							&& x >= 0 && x < IMG_LEN
+							&& y >= 0 && y < IMG_LEN) 
 						{
-							results[y*VIS_LEN + x] = 0; 
-							// Yes, this is the right order. Remeber that y = row
+							results[y*IMG_LEN + x] = 0; 
+							// Yes, y*IMG_LEN. Remeber that y = row
 						}
 					}
 				}
+			}
+			// define something like a 21-pixel border around the image
+			if (column*2 < BORDER || column*2 > IMG_LEN - BORDER
+				|| row*2 < BORDER || row*2 > IMG_LEN - BORDER)
+			{
+				results[row*2*IMG_LEN + column*2] = 0;
+				results[(row*2+1)*IMG_LEN + column*2] = 0;
+				results[row*2*IMG_LEN + column*2 + 1] = 0;
+				results[(row*2+1)*IMG_LEN + column*2 + 1] = 0;
 			}
 		}
 	}
