@@ -1,9 +1,14 @@
 CC = gcc
+CPPC = g++
 CFLAGS = -O3 -funroll-loops -pedantic
 CLIBS= -L.  -lm
 MAIN_EXE=lander
 MAIN_OUT=lander_out
 DIFF_OUT=diff_out.png
+PNMIO_F=pnmio.c pnmio.h
+ERROR_F=error.c error.h
+BRUTEFORCE_F=bruteforce.h bruteforce.cpp
+VEC3D_F=vec3d.h vec3d.cpp
 
 all: build run
 
@@ -24,13 +29,15 @@ test1: lander
 	@ # Now, open the image for viewing
 	@ eog $(DIFF_OUT) &
 
-lander: lander.cpp pnmio.c error.c
-	g++ -o $(MAIN_EXE) $(CFLAGS) lander.cpp pnmio.c error.c
+test2: lander
 
-dem_reader: dem_reader.cpp pnmio.c error.c
-	g++ -o dem_reader $(CFLAGS) dem_reader.cpp pnmio.c error.c
+lander: lander.cpp $(PNMIO_F) $(ERROR_F) $(BRUTEFORCE_F) $(VEC3D_F)
+	$(CPPC) -o $(MAIN_EXE) $(CFLAGS) lander.cpp pnmio.c error.c bruteforce.cpp vec3d.cpp
 
-test_pgm: test_main.c pnmio.c error.c
+dem_reader: dem_reader.cpp $(PNMIO_F) $(ERROR_F)
+	$(CPPC) -o dem_reader $(CFLAGS) dem_reader.cpp pnmio.c error.c
+
+test_pgm: test_main.c $(PNMIO_F) $(ERROR_F)
 	$(CC) -o test_pgm $(CFLAGS) test_main.c pnmio.c error.c $(CLIBS)
 
 depend:
