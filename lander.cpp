@@ -5,6 +5,7 @@
 #include "pnmio.h"
 #include "bruteforce.h"
 #include "defs.h"
+#include "filter.h"
 
 void print_usage(char** argv)
 {
@@ -22,7 +23,7 @@ int main(int argc, char** argv)
 	FILE* visual_file = fopen(argv[1], "rb");
 	if (!visual_file)
 	{
-		printf("Failed to open file \"%s\", error code %d: %s.\n", 
+		printf("Failed to open file \"%s\", error code %d: %s.\n",
 			argv[1], errno, strerror(errno));
 		print_usage(argv);
 		return 1;
@@ -31,7 +32,7 @@ int main(int argc, char** argv)
 	FILE* elevation_file = fopen(argv[2], "rb");
 	if (!elevation_file)
 	{
-		printf("Failed to open file \"%s\", error code %d: %s.\n", 
+		printf("Failed to open file \"%s\", error code %d: %s.\n",
 			argv[2], errno, strerror(errno));
 		print_usage(argv);
 		return 1;
@@ -48,11 +49,11 @@ int main(int argc, char** argv)
 	}
 
 	// set the results array to zero
-	int results[IMG_LEN*IMG_LEN]; 
-	for (int i = 0; i < IMG_LEN*IMG_LEN; i++) 
+	int results[IMG_LEN*IMG_LEN];
+	for (int i = 0; i < IMG_LEN*IMG_LEN; i++)
 		results[i] = 1;
 
-	bruteforce_test(results, elevation);
-
+	//bruteforce_test(results, elevation);
+	filter_test(results, elevation);
 	write_int_img_pgm_bw(argv[3], results, 1000, 1000);
 }

@@ -3,8 +3,9 @@
 
 struct vec3d
 {
+
 	float x, y, z;
-	
+
 	struct vec3d operator-(struct vec3d other);
 	struct vec3d operator+(struct vec3d other);
 	struct vec3d operator*(float other);

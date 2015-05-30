@@ -1,5 +1,6 @@
 CC = gcc
 CPPC = g++
+DEBUG_FLAGS = -g -O0
 CFLAGS = -O3 -funroll-loops -pedantic
 CLIBS= -L.  -lm
 MAIN_EXE=lander
@@ -8,6 +9,7 @@ DIFF_OUT=diff_out.png
 PNMIO_F=pnmio.c pnmio.h
 ERROR_F=error.c error.h
 BRUTEFORCE_F=bruteforce.h bruteforce.cpp
+FILTER_F=filter.h filter.cpp
 VEC3D_F=vec3d.h vec3d.cpp
 
 all: build run
@@ -15,6 +17,9 @@ all: build run
 build: test_pgm dem_reader lander
 
 run: test1
+
+clean:
+	rm test_pgm dem_reader lander
 
 test1: lander
 	@ # Execute lander to get the latest output
@@ -31,14 +36,14 @@ test1: lander
 
 test2: lander
 
-lander: lander.cpp $(PNMIO_F) $(ERROR_F) $(BRUTEFORCE_F) $(VEC3D_F)
-	$(CPPC) -o $(MAIN_EXE) $(CFLAGS) lander.cpp pnmio.c error.c bruteforce.cpp vec3d.cpp
+lander: lander.cpp $(PNMIO_F) $(ERROR_F) $(BRUTEFORCE_F) $(VEC3D_F) $(FILTER_F)
+	$(CPPC) -o $(MAIN_EXE) $(DEBUG_FLAGS) lander.cpp pnmio.c error.c bruteforce.cpp vec3d.cpp filter.cpp
 
 dem_reader: dem_reader.cpp $(PNMIO_F) $(ERROR_F)
-	$(CPPC) -o dem_reader $(CFLAGS) dem_reader.cpp pnmio.c error.c
+	$(CPPC) -o dem_reader $(DEBUG_FLAGS) dem_reader.cpp pnmio.c error.c
 
 test_pgm: test_main.c $(PNMIO_F) $(ERROR_F)
-	$(CC) -o test_pgm $(CFLAGS) test_main.c pnmio.c error.c $(CLIBS)
+	$(CC) -o test_pgm $(DEBUG_FLAGS) test_main.c pnmio.c error.c $(CLIBS)
 
 depend:
 	makedepend -f Makefile $(SRCS) # not sure what this does, TBH.
